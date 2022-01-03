@@ -1,6 +1,6 @@
 {
   "name": "@watch-state/fetch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fetch with watch-state",
   "main": "index.js",
   "module": "index.es6.js",

@@ -1,7 +1,7 @@
 import Async, { IAsyncOptions } from '@watch-state/async'
 import { State, globalEvent } from 'watch-state'
 
-export interface FetchOptions extends RequestInit, Omit<IAsyncOptions, 'request'> {
+export interface FetchOptions<V = any, E = any> extends RequestInit, Omit<IAsyncOptions<V, E>, 'request'> {
   type?: 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData'
 }
 
@@ -14,7 +14,7 @@ export default class Fetch<V = any, E = any> extends Async<V, E> {
     this._answer.value = value
   }
 
-  constructor (url: string, options: FetchOptions = {}) {
+  constructor (url: string, options: FetchOptions<V, E> = {}) {
     super({...options, request: (resolve, reject) => {
       const { type = 'json' } = options
       let answer
