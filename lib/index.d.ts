@@ -7,5 +7,5 @@ export default class Fetch<V = any, E = any> extends Async<V, E> {
     _answer: State<any>;
     get answer(): any;
     set answer(value: any);
-    constructor(url: string, options?: FetchOptions<V, E>);
+    constructor(url: string, options?: FetchOptions<V, E>, update?: boolean);
 }

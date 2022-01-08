@@ -14,13 +14,13 @@ export default class Fetch<V = any, E = any> extends Async<V, E> {
     this._answer.value = value
   }
 
-  constructor (url: string, options: FetchOptions<V, E> = {}) {
+  constructor (url: string, options: FetchOptions<V, E> = {}, update?: boolean) {
     super({...options, request: (resolve, reject) => {
       const { type = 'json' } = options
       let answer
       fetch(url, options).then(data => {
         answer = data
-        return data[type]()
+        return data.status === 204 ? undefined : data[type]()
       }).then(data => {
         globalEvent.start()
         this.answer = answer
@@ -32,6 +32,6 @@ export default class Fetch<V = any, E = any> extends Async<V, E> {
         reject(e)
         globalEvent.end()
       })
-    }})
+    }}, update)
   }
 }
