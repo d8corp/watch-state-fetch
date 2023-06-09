@@ -33,7 +33,10 @@ yarn add @watch-state/fetch
 
 ### Usage
 
-`Fetch` is a `Promise` like constructor
+`Fetch` is a `Promise` like class.
+
+`Fetch` extends [@watch-state/async](https://www.npmjs.com/package/@watch-state/async)
+
 ```javascript
 import Fetch from '@watch-state/fetch'
 
@@ -47,9 +50,9 @@ Use `then`, `catch` and `finally` like with `Promise`
 ```javascript
 const user = new Fetch('https://reqres.in/api/users/1')
 user
-  .finally(value => console.log('finally', value))
-  .then(value => console.log('then', value))
-  .catch(value => console.log('catch', value))
+  .then(data => console.log('then', data))
+  .catch(error => console.log('catch', error))
+  .finally(() => console.log('finally'))
 ```
 
 ### loading
@@ -60,8 +63,10 @@ it's `true` when data is loading. This field is observable.
 ```javascript
 const user = new Fetch('https://reqres.in/api/users/1')
 // user.loading === true
+// but request does not happen
 
 await user
+// await triggers request
 // user.loading === false
 ```
 
@@ -115,13 +120,15 @@ const user = new Fetch('https://reqres.in/api/users/1', {
 })
 ```
 
-### default
+### default value
 
 You may provide default `value` for `Fetch`
 
+Option of `type` equals *`json` by default*
+
 ```javascript
 const user = new Fetch('https://reqres.in/api/users/1', {
-  default: {
+  defaultValue: {
     data: { id: null }
   }
 })
@@ -130,26 +137,6 @@ const user = new Fetch('https://reqres.in/api/users/1', {
 
 await user
 // user.value.data.id === 1
-```
-
-### response
-
-`response` is the same `value` but without default value.  
-This is an observable field.
-
-```javascript
-const user = new Fetch('https://reqres.in/api/users/1', {
-  default: {
-    data: { id: null }
-  }
-})
-
-// user.value.data.id === null
-// user.response === undefined
-
-await user
-// user.value.data.id === 1
-// user.response.data.id === 1
 ```
 
 ### update
@@ -168,93 +155,56 @@ await user
 // request to https://reqres.in/api/users/1
 ```
 
-### resolve
-
-You may use `resolve` to set value without updating or loading.
-
+You can set timeout to make update only after some time.
 ```javascript
 const user = new Fetch('https://reqres.in/api/users/1')
 
-user.resolve({ data: { id: 2 } })
+await user
+// request to https://reqres.in/api/users/1
+
+user.update(1000)
+// nothing happends
 
 await user
-// user.value.data.id === 2
+// nothing happends
 
-user.update()
+await new Promise(resolve => setTimeout(resolve, 1000))
+// nothing happends
+
+// 1 second passed, if use 1000ms it triggers update
+user.update(1000)
 
 await user
-// user.value.data.id === 1
+// request to https://reqres.in/api/users/1
 ```
 
-### reject
+### response
 
-The same as resolve, but it set an `error` instead of `value`.
-
-### on, once, off
-
-You may add a listener to react on the next events `resolve` | `reject` | `update`
-
-```javascript
-const user = new Fetch('https://reqres.in/api/users/1')
-let test = false
-
-user.on('resolve', value => test = value)
-
-await user
-// test === '{...}'
-```
-
-You may add a listener which reacts only once with `once` method.
-
-```javascript
-const user = new Fetch('https://reqres.in/api/users/1')
-let test = false
-
-user.once('resolve', value => test = value)
-
-await user
-// test === '{...}'
-```
-
-You may turn off a listener
-
-```javascript
-const user = new Fetch('https://reqres.in/api/users/1')
-let test = false
-
-const listenr = e => test = e
-
-user.once('resolve', listenr)
-user.off('resolve', listenr)
-
-await user
-// test === undefined
-```
-
-### answer
-
-If you want to know the status of the response or headers you can use `answer` field.
+If you want to know the status of the response or headers you can use `response` field.
 
 ```javascript
 const user = new Fetch('https://reqres.in/api/users/23')
 
-// user.answer === undefined
+// user.response === undefined
 
 await user
 
-// user.answer.ok === false
-// user.answer.status === 404
+// user.response.ok === false
+// user.response.status === 404
 ```
 
 It's better if you extend `Fetch` class to get it.
 ```typescript
-class MyFetch extends Fetch {
-  @cache get status (): number {
-    return this.answer?.status
+import { cache } from '@watch-state/decorators'
+import Fetch from '@watch-state/fetch'
+
+class StatusFetch extends Fetch {
+  @cache get status () {
+    return this.response?.status
   }
 }
 
-const user = new MyFetch('https://reqres.in/api/users/23')
+const user = new StatusFetch('https://reqres.in/api/users/23')
 
 // user.status === undefined
 
