@@ -6,7 +6,7 @@ export interface FetchOptions<V = any> extends RequestInit {
   defaultValue?: V
 }
 
-export default class Fetch<V, E = unknown> extends Async<V, E> {
+export default class Fetch<V, E = Error> extends Async<V, E> {
   @state accessor #response: Response
   private _response: Response
   get response () {
@@ -21,13 +21,21 @@ export default class Fetch<V, E = unknown> extends Async<V, E> {
     }), options.defaultValue)
   }
 
-  @event protected resolve (value: V | E) {
+  @event protected asyncResolve (value: V | E) {
     this.#response = this._response
 
-    if (this._response.status > 399) {
-      return super.reject(value as E)
+    if (this._response.ok) {
+      this.fetchResolve(value as V)
+    } else {
+      this.fetchReject(value as E)
     }
+  }
 
-    return super.resolve(value as V)
+  protected fetchReject (error: E) {
+    this.reject(error)
+  }
+
+  protected fetchResolve (value: V) {
+    this.resolve(value)
   }
 }
