@@ -19,7 +19,8 @@ var index = (() => {
                     return response.status === 204 ? undefined : response[options.type || 'json']();
                 }), options.defaultValue);
                 _Fetch_instances.add(this);
-                _Fetch_response_accessor_storage.set(this, (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _private_response_initializers, void 0)));
+                this.options = (__runInitializers(this, _instanceExtraInitializers), options);
+                _Fetch_response_accessor_storage.set(this, __runInitializers(this, _private_response_initializers, void 0));
             }
             asyncResolve(value) {
                 __classPrivateFieldSet(this, _Fetch_instances, this._response, "a", _Fetch_response_set);
@@ -31,9 +32,17 @@ var index = (() => {
                 }
             }
             fetchReject(error) {
+                const { reject } = this.options;
+                if (reject) {
+                    error = reject(error);
+                }
                 this.reject(error);
             }
             fetchResolve(value) {
+                const { resolve } = this.options;
+                if (resolve) {
+                    value = resolve(value);
+                }
                 this.resolve(value);
             }
         },
