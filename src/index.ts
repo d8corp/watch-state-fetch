@@ -10,46 +10,43 @@ export interface FetchOptions<V = any, E = Error> extends RequestInit {
 
 export default class Fetch<V, E = Error> extends Async<V, E> {
   @state accessor #response: Response
-  private _response: Response
+  #responseTemp: Response
   get response () {
     return this.#response
   }
 
   constructor (url: RequestInfo | URL, protected options: FetchOptions<V, E> = {}) {
     super(() => fetch(url, options).then(response => {
-      this._response = response
+      this.#responseTemp = response
+      const { type = 'json' } = options
 
-      return response.status === 204 ? undefined : response[options.type || 'json']()
+      if (!response.ok) {
+        return new Promise((resolve, reject) => response[type]().then(reject, reject))
+      }
+
+      return response.status === 204 ? undefined : response[type]()
     }), options.defaultValue)
   }
 
-  @event protected asyncResolve (value: V | E) {
-    this.#response = this._response
-
-    if (this._response.ok) {
-      this.fetchResolve(value as V)
-    } else {
-      this.fetchReject(value as E)
-    }
-  }
-
-  protected fetchReject (error: E) {
-    const { reject } = this.options
-
-    if (reject) {
-      error = reject(error)
-    }
-
-    this.reject(error)
-  }
-
-  protected fetchResolve (value: V) {
+  @event protected resolve (value: V) {
+    this.#response = this.#responseTemp
     const { resolve } = this.options
 
     if (resolve) {
       value = resolve(value)
     }
 
-    this.resolve(value)
+    super.resolve(value)
+  }
+
+  @event protected reject (error: E) {
+    this.#response = this.#responseTemp
+    const { reject } = this.options
+
+    if (reject) {
+      error = reject(error)
+    }
+
+    super.reject(error)
   }
 }

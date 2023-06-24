@@ -1,6 +1,6 @@
 {
   "name": "@watch-state/fetch",
-  "version": "2.0.0-alpha.2",
+  "version": "2.0.0-alpha.3",
   "description": "Fetch with watch-state",
   "main": "index.js",
   "module": "index.es6.js",
@@ -39,7 +39,7 @@
   "homepage": "https://github.com/d8corp/watch-state-fetch",
   "dependencies": {
     "@watch-state/decorators": "^1.3.0-alpha.0",
-    "@watch-state/async": "^2.0.0-alpha.2",
+    "@watch-state/async": "^2.0.0-alpha.3",
     "tslib": "^2.5.3",
     "watch-state": "^3.5.0-alpha.2"
   }

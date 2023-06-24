@@ -8,10 +8,8 @@ export interface FetchOptions<V = any, E = Error> extends RequestInit {
 export default class Fetch<V, E = Error> extends Async<V, E> {
     #private;
     protected options: FetchOptions<V, E>;
-    private _response;
     get response(): Response;
     constructor(url: RequestInfo | URL, options?: FetchOptions<V, E>);
-    protected asyncResolve(value: V | E): void;
-    protected fetchReject(error: E): void;
-    protected fetchResolve(value: V): void;
+    protected resolve(value: V): void;
+    protected reject(error: E): void;
 }

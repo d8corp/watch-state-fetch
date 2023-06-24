@@ -58,4 +58,16 @@ describe('Ajax', () => {
     expect(user.response.ok).toBe(false)
     expect(user.response.status).toBe(404)
   })
+  test('error1', async () => {
+    const fn = jest.fn()
+    const user = new Fetch('https://reqres.in/api/users/123')
+
+    try {
+      await user
+    } catch (e) {
+      fn()
+    }
+
+    expect(fn).toBeCalled()
+  })
 })
